@@ -343,3 +343,26 @@ func TestEncryptedBackupRejectsTampering(t *testing.T) {
 		t.Fatal("decrypted invalid configuration accepted")
 	}
 }
+
+func TestBackupImportNormalizesLegacyRelativePaths(t *testing.T) {
+	source := newBackupTestApp(t, "legacy-path-source")
+	payload := backupTestPayload(t, source)
+	payload.Accounts[0].LoginPath = "api/user/login"
+	payload.Accounts[0].BalancePath = "api/user/self"
+
+	destination := newBackupTestApp(t, "legacy-path-destination")
+	result, err := destination.importBackup(payload, "skip", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Added != 1 {
+		t.Fatalf("added = %d, want 1", result.Added)
+	}
+	var loginPath, balancePath string
+	if err := destination.db.QueryRow(`SELECT login_path,balance_path FROM accounts LIMIT 1`).Scan(&loginPath, &balancePath); err != nil {
+		t.Fatal(err)
+	}
+	if loginPath != "/api/user/login" || balancePath != "/api/user/self" {
+		t.Fatalf("paths = %q, %q", loginPath, balancePath)
+	}
+}

@@ -86,6 +86,14 @@ func normalizeAccountPlatform(input *accountInput) {
 	classifyAccountPlatform(input)
 }
 
+func normalizeEndpointPath(path string) string {
+	path = strings.TrimSpace(path)
+	if path != "" && !strings.HasPrefix(path, "/") {
+		return "/" + path
+	}
+	return path
+}
+
 func validateAccountPlatform(input accountInput) error {
 	if _, ok := platformTemplates[input.BaseProvider]; !ok {
 		return errors.New("基础平台必须为 New-API 或 Sub2API")

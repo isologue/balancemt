@@ -189,6 +189,7 @@ func (a *app) snapshotBackup() (backupPayload, error) {
 			return payload, errors.New("站点凭据格式无效")
 		}
 		input.Password, input.AccessToken = secret.Password, secret.AccessToken
+		normalizeAccountInput(&input)
 		active := enabled == 1
 		input.Enabled = &active
 		payload.Accounts = append(payload.Accounts, input)
@@ -216,6 +217,8 @@ func (a *app) importBackup(payload backupPayload, mode string, importAlerts bool
 	// Classify imported interfaces using the same rules as the editor.
 	payload.Accounts = append([]accountInput(nil), payload.Accounts...)
 	for i := range payload.Accounts {
+		payload.Accounts[i].LoginPath = normalizeEndpointPath(payload.Accounts[i].LoginPath)
+		payload.Accounts[i].BalancePath = normalizeEndpointPath(payload.Accounts[i].BalancePath)
 		normalizeAccountInput(&payload.Accounts[i])
 		if err := validateAccountPlatform(payload.Accounts[i]); err != nil {
 			return result, err
