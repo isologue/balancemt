@@ -1,9 +1,9 @@
 services:
   balancemt:
     image: milodk/balancemt:latest
-    # build:
-    #   context: .
-    args:
+    build:
+      context: .
+      args:
         GO_BUILDER: "${GO_BUILDER:-golang:1.23-alpine}"
     container_name: balancemt
     restart: unless-stopped
