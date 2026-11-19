@@ -34,25 +34,27 @@ import (
 var webFS embed.FS
 
 type app struct {
-	db               *sql.DB
-	storageMu        sync.Mutex
-	httpClient       *http.Client
-	key              []byte
-	mu               sync.Mutex
-	alertMu          sync.Mutex
-	alertStates      map[int64]alertState
-	backupMu         sync.Mutex
-	settingsMu       sync.Mutex
-	configMu         sync.RWMutex
-	monitorInterval  time.Duration
-	usageWindowHours int
-	alerts           alertConfig
-	intervalWake     chan struct{}
+	db                    *sql.DB
+	storageMu             sync.Mutex
+	httpClient            *http.Client
+	key                   []byte
+	mu                    sync.Mutex
+	alertMu               sync.Mutex
+	alertStates           map[int64]alertState
+	backupMu              sync.Mutex
+	settingsMu            sync.Mutex
+	configMu              sync.RWMutex
+	monitorInterval       time.Duration
+	usageWindowHours      int
+	failureAlertThreshold int
+	alerts                alertConfig
+	intervalWake          chan struct{}
 }
 
 type alertState struct {
-	lowBalance bool
-	checkError bool
+	lowBalance   bool
+	checkError   bool
+	failureCount int
 }
 
 type alertConfig struct {
@@ -74,6 +76,7 @@ type alertConfig struct {
 type alertSettingsInput struct {
 	MonitorIntervalSeconds int    `json:"monitor_interval_seconds"`
 	UsageWindowHours       int    `json:"usage_window_hours"`
+	FailureAlertThreshold  int    `json:"failure_alert_threshold"`
 	SMTPHost               string `json:"smtp_host"`
 	SMTPPort               int    `json:"smtp_port"`
 	SMTPUsername           string `json:"smtp_username"`
@@ -95,6 +98,7 @@ type alertSettingsInput struct {
 type alertSettingsResponse struct {
 	MonitorIntervalSeconds    int    `json:"monitor_interval_seconds"`
 	UsageWindowHours          int    `json:"usage_window_hours"`
+	FailureAlertThreshold     int    `json:"failure_alert_threshold"`
 	SMTPHost                  string `json:"smtp_host"`
 	SMTPPort                  int    `json:"smtp_port"`
 	SMTPUsername              string `json:"smtp_username"`
@@ -200,14 +204,15 @@ func main() {
 		log.Println("WARNING: ENCRYPTION_KEY is not set; using the development key")
 	}
 	a := &app{
-		db:               db,
-		key:              key[:],
-		httpClient:       &http.Client{Timeout: 25 * time.Second},
-		alertStates:      make(map[int64]alertState),
-		monitorInterval:  loadMonitorInterval(),
-		usageWindowHours: 24,
-		alerts:           loadAlertConfig(),
-		intervalWake:     make(chan struct{}, 1),
+		db:                    db,
+		key:                   key[:],
+		httpClient:            &http.Client{Timeout: 25 * time.Second},
+		alertStates:           make(map[int64]alertState),
+		monitorInterval:       loadMonitorInterval(),
+		usageWindowHours:      24,
+		failureAlertThreshold: 5,
+		alerts:                loadAlertConfig(),
+		intervalWake:          make(chan struct{}, 1),
 	}
 	if err := a.loadStoredAlertSettings(); err != nil {
 		log.Printf("load stored alert settings: %v", err)
@@ -704,6 +709,7 @@ func (a *app) handleHistory(w http.ResponseWriter, r *http.Request) {
 type storedAlertSettings struct {
 	MonitorIntervalSeconds int         `json:"monitor_interval_seconds"`
 	UsageWindowHours       int         `json:"usage_window_hours,omitempty"`
+	FailureAlertThreshold  int         `json:"failure_alert_threshold,omitempty"`
 	Alerts                 alertConfig `json:"alerts"`
 }
 
@@ -746,6 +752,10 @@ func (a *app) handleAlertSettingsTest(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, map[string]any{"error": err.Error()})
 		return
 	}
+	if _, err := a.resolveFailureAlertThreshold(input.FailureAlertThreshold); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]any{"error": err.Error()})
+		return
+	}
 	var errorsFound []string
 	if cfg.emailEnabled() {
 		if err := sendEmailWithConfig(cfg, "BalanceMT test alert", "This is a test alert from BalanceMT."); err != nil {
@@ -777,6 +787,7 @@ func (a *app) alertSettingsResponse() alertSettingsResponse {
 	return alertSettingsResponse{
 		MonitorIntervalSeconds:    interval,
 		UsageWindowHours:          a.currentUsageWindowHours(),
+		FailureAlertThreshold:     a.currentFailureAlertThreshold(),
 		SMTPHost:                  cfg.SMTPHost,
 		SMTPPort:                  cfg.SMTPPort,
 		SMTPUsername:              cfg.SMTPUsername,
@@ -810,7 +821,11 @@ func (a *app) updateAlertSettings(input alertSettingsInput) error {
 	if usageWindow < 1 || usageWindow > 720 {
 		return errors.New("统计窗口必须在 1 到 720 小时之间")
 	}
-	stored := storedAlertSettings{MonitorIntervalSeconds: interval, UsageWindowHours: usageWindow, Alerts: cfg}
+	failureThreshold, err := a.resolveFailureAlertThreshold(input.FailureAlertThreshold)
+	if err != nil {
+		return err
+	}
+	stored := storedAlertSettings{MonitorIntervalSeconds: interval, UsageWindowHours: usageWindow, FailureAlertThreshold: failureThreshold, Alerts: cfg}
 	encrypted, err := a.encrypt(stored)
 	if err != nil {
 		return err
@@ -824,6 +839,7 @@ func (a *app) updateAlertSettings(input alertSettingsInput) error {
 	a.alerts = cfg
 	a.monitorInterval = time.Duration(interval) * time.Second
 	a.usageWindowHours = usageWindow
+	a.failureAlertThreshold = failureThreshold
 	a.configMu.Unlock()
 	if oldInterval != time.Duration(interval)*time.Second {
 		select {
@@ -911,10 +927,18 @@ func (a *app) loadStoredAlertSettings() error {
 	if usageWindow < 1 || usageWindow > 720 {
 		return errors.New("stored usage window is invalid")
 	}
+	failureThreshold := stored.FailureAlertThreshold
+	if failureThreshold == 0 {
+		failureThreshold = 5
+	}
+	if failureThreshold < 1 || failureThreshold > 1000 {
+		return errors.New("stored failure alert threshold is invalid")
+	}
 	a.configMu.Lock()
 	a.alerts = stored.Alerts
 	a.monitorInterval = time.Duration(stored.MonitorIntervalSeconds) * time.Second
 	a.usageWindowHours = usageWindow
+	a.failureAlertThreshold = failureThreshold
 	a.configMu.Unlock()
 	return nil
 }
@@ -938,6 +962,25 @@ func (a *app) currentUsageWindowHours() int {
 		return 24
 	}
 	return a.usageWindowHours
+}
+
+func (a *app) currentFailureAlertThreshold() int {
+	a.configMu.RLock()
+	defer a.configMu.RUnlock()
+	if a.failureAlertThreshold < 1 {
+		return 5
+	}
+	return a.failureAlertThreshold
+}
+
+func (a *app) resolveFailureAlertThreshold(value int) (int, error) {
+	if value == 0 {
+		value = a.currentFailureAlertThreshold()
+	}
+	if value < 1 || value > 1000 {
+		return 0, errors.New("连续失败告警次数必须在 1 到 1000 次之间")
+	}
+	return value, nil
 }
 
 func (a *app) listAccounts() ([]Account, error) {
@@ -1385,9 +1428,20 @@ func (a *app) maybeAlert(account Account) {
 
 	a.alertMu.Lock()
 	previous := a.alertStates[account.ID]
-	next := alertState{lowBalance: low, checkError: failed}
+	failureCount := 0
+	if failed {
+		failureCount = previous.failureCount + 1
+	}
+	threshold := a.currentFailureAlertThreshold()
+	next := alertState{lowBalance: low, checkError: previous.checkError, failureCount: failureCount}
 	shouldLow := low && !previous.lowBalance
-	shouldError := failed && !previous.checkError
+	shouldError := failed && failureCount >= threshold && !previous.checkError
+	if !failed {
+		next.checkError = false
+	}
+	if shouldError {
+		next.checkError = true
+	}
 	a.alertStates[account.ID] = next
 	a.alertMu.Unlock()
 

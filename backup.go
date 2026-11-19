@@ -150,7 +150,7 @@ func validateBackupPayload(payload backupPayload) error {
 	if usageWindow == 0 {
 		usageWindow = 24
 	}
-	if payload.Settings.MonitorIntervalSeconds < 1 || payload.Settings.MonitorIntervalSeconds > 86400 || usageWindow < 1 || usageWindow > 720 || cfg.SMTPPort < 1 || cfg.SMTPPort > 65535 ||
+	if payload.Settings.MonitorIntervalSeconds < 1 || payload.Settings.MonitorIntervalSeconds > 86400 || usageWindow < 1 || usageWindow > 720 || payload.Settings.FailureAlertThreshold < 1 || payload.Settings.FailureAlertThreshold > 1000 || cfg.SMTPPort < 1 || cfg.SMTPPort > 65535 ||
 		(cfg.SMSProvider != "" && cfg.SMSProvider != "twilio" && cfg.SMSProvider != "webhook") {
 		return errors.New("备份中的检查间隔或告警配置无效")
 	}
@@ -198,7 +198,7 @@ func (a *app) snapshotBackup() (backupPayload, error) {
 		return payload, err
 	}
 	a.configMu.RLock()
-	payload.Settings = storedAlertSettings{MonitorIntervalSeconds: int(a.monitorInterval / time.Second), UsageWindowHours: a.currentUsageWindowHours(), Alerts: a.alerts}
+	payload.Settings = storedAlertSettings{MonitorIntervalSeconds: int(a.monitorInterval / time.Second), UsageWindowHours: a.currentUsageWindowHours(), FailureAlertThreshold: a.currentFailureAlertThreshold(), Alerts: a.alerts}
 	a.configMu.RUnlock()
 	return payload, validateBackupPayload(payload)
 }
@@ -210,6 +210,9 @@ func (a *app) importBackup(payload backupPayload, mode string, importAlerts bool
 	}
 	if payload.Settings.UsageWindowHours == 0 {
 		payload.Settings.UsageWindowHours = 24
+	}
+	if payload.Settings.FailureAlertThreshold == 0 {
+		payload.Settings.FailureAlertThreshold = 5
 	}
 	if err := validateBackupPayload(payload); err != nil {
 		return result, err
@@ -306,6 +309,7 @@ func (a *app) importBackup(payload backupPayload, mode string, importAlerts bool
 		a.alerts = payload.Settings.Alerts
 		a.monitorInterval = time.Duration(payload.Settings.MonitorIntervalSeconds) * time.Second
 		a.usageWindowHours = payload.Settings.UsageWindowHours
+		a.failureAlertThreshold = payload.Settings.FailureAlertThreshold
 		a.configMu.Unlock()
 		select {
 		case a.intervalWake <- struct{}{}:
