@@ -145,7 +145,7 @@ function renderDashboard(){
 
       </div>
       <div class="right-col">
-        <section class="panel content-panel accounts-panel"><div class="section-head"><div><h3>中转站账户</h3><p>点击账户查看详情，余额会自动同步</p></div><button class="table-link" id="history-btn">查看最近失败记录 →</button></div>
+        <section class="panel content-panel accounts-panel"><div class="section-head"><div><h3>中转站账户</h3><p>单击查看详情，双击打开站点，余额会自动同步</p></div><button class="table-link" id="history-btn">查看最近失败记录 →</button></div>
           <div class="list-toolbar"><span>${state.accounts.length} 个账户</span><label class="sort-control" for="balance-sort">余额排序<select id="balance-sort"><option value="asc" ${state.sortOrder==='asc'?'selected':''}>从低到高 ↑</option><option value="desc" ${state.sortOrder==='desc'?'selected':''}>从高到低 ↓</option></select></label></div>
           <div class="account-list accounts-scroll" id="account-list" tabindex="0" aria-label="中转站账户列表">${state.accounts.length?sortedAccounts().map(a=>accountRow(a)).join(''):`<div class="empty">还没有账户，添加第一个中转站开始监控。</div>`}</div>
         </section>
@@ -161,8 +161,20 @@ function renderDashboard(){
   updateSyncStatus();
 }
 function accountRow(a){const stateClass=a.status==='ok'?'':a.status==='error'?'error':'pending';const low=a.threshold>0&&a.balance<=a.threshold;return `<button class="account-row ${a.id===state.selectedId?'active':''}" data-id="${a.id}"><span class="account-icon">${initials(a.name)}</span><span class="account-info"><strong><span class="status-dot ${stateClass}"></span>${esc(a.name)} ${a.status==='error'?'· 检查失败':''} ${low?'· 余额偏低':''}</strong><small>${providerLabel(a.provider)} · ${esc(a.base_url)}</small></span><span class="account-value"><strong>${money(a.balance,a.currency)}</strong><small>${usageWindowText(a)}消耗 ${usageText(a)}</small><small>预计 ${etaText(a)}</small></span></button>`}
+function openAccountSite(account){
+  if(!account?.base_url){toast('该账户没有配置站点地址');return}
+  try{
+    const url=new URL(account.base_url);
+    if(url.protocol!=='http:'&&url.protocol!=='https:')throw new Error('invalid protocol');
+    window.open(url.href,'_blank','noopener,noreferrer');
+  }catch{toast('站点地址无效')}
+}
 function bindDashboard(){
-  $$('.account-row').forEach(el=>el.onclick=()=>{state.selectedId=Number(el.dataset.id);renderDashboard()});
+  $$('.account-row').forEach(el=>{
+    el.onclick=()=>{state.selectedId=Number(el.dataset.id);renderDashboard()};
+    el.ondblclick=()=>openAccountSite(state.accounts.find(a=>a.id===Number(el.dataset.id)));
+    el.title='单击查看详情，双击打开站点';
+  });
   $('#balance-sort').onchange=e=>{state.sortOrder=e.target.value;renderDashboard()};
   $('#add-btn').onclick=()=>openAccountModal();
   $('#backup-btn').onclick=()=>openBackupModal();$('#alert-settings-btn').onclick=()=>openAlertSettings();$('#password-btn').onclick=()=>openPasswordModal();
