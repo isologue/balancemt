@@ -1,0 +1,35 @@
+services:
+  balancemt:
+    build:
+      context: .
+      args:
+        GO_BUILDER: "${GO_BUILDER:-golang:1.23-alpine}"
+    container_name: balancemt
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    ports:
+      - "8080:8080"
+    environment:
+      ADDR: "${ADDR:-:8080}"
+      DATA_DIR: "${DATA_DIR:-/app/data}"
+      ENCRYPTION_KEY: "${ENCRYPTION_KEY:?Set ENCRYPTION_KEY in .env}"
+      MONITOR_INTERVAL_SECONDS: "${MONITOR_INTERVAL_SECONDS:-10}"
+      SMTP_HOST: "${SMTP_HOST:-}"
+      SMTP_PORT: "${SMTP_PORT:-587}"
+      SMTP_USERNAME: "${SMTP_USERNAME:-}"
+      SMTP_PASSWORD: "${SMTP_PASSWORD:-}"
+      SMTP_FROM: "${SMTP_FROM:-}"
+      ALERT_EMAIL_TO: "${ALERT_EMAIL_TO:-}"
+      SMS_PROVIDER: "${SMS_PROVIDER:-}"
+      SMS_TO: "${SMS_TO:-}"
+      SMS_WEBHOOK_URL: "${SMS_WEBHOOK_URL:-}"
+      SMS_WEBHOOK_TOKEN: "${SMS_WEBHOOK_TOKEN:-}"
+      TWILIO_ACCOUNT_SID: "${TWILIO_ACCOUNT_SID:-}"
+      TWILIO_AUTH_TOKEN: "${TWILIO_AUTH_TOKEN:-}"
+      TWILIO_FROM: "${TWILIO_FROM:-}"
+    volumes:
+      - ./data:/app/data

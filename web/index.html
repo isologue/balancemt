@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>余额台 · Balance Monitor</title>
+<style>
+:root{--ink:#111513;--muted:#8f9692;--line:#e4e7e4;--soft:#f0f1f0;--canvas:#f6f7f6;--green:#bfe8cb;--green-2:#dcefe2;--blue:#65c5ef;--orange:#ffbd70;--red:#ff8e8e;--black:#101211;--shadow:0 18px 45px rgba(16,25,20,.10),0 3px 9px rgba(16,25,20,.06)}
+*{box-sizing:border-box}body{margin:0;background:var(--canvas);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;letter-spacing:-.02em}button,input,select{font:inherit}button{cursor:pointer;border:0}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #9feeb5;outline-offset:2px}.hidden{display:none!important}.settings-section{border-top:1px solid var(--line);padding-top:18px;margin-top:18px}.settings-section:first-of-type{border-top:0;padding-top:0;margin-top:0}.settings-section h3{font-size:14px;margin:0 0 12px}.check-line{display:flex;align-items:center;gap:8px;font-size:12px;color:#646b67}.check-line input{width:auto}.app-shell{min-height:100vh;padding:26px 34px 38px}.topbar{max-width:1440px;margin:0 auto 24px;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:12px}.brand-mark{width:42px;height:42px;border-radius:14px;background:var(--black);color:#fff;display:grid;place-items:center;font-weight:900;font-size:20px;box-shadow:0 8px 16px rgba(0,0,0,.16)}.brand h1{font-size:18px;margin:0;letter-spacing:-.05em}.brand p{font-size:11px;color:var(--muted);margin:3px 0 0;letter-spacing:.08em;text-transform:uppercase}.top-actions{display:flex;align-items:center;gap:10px}.pill{border-radius:999px;background:#fff;padding:10px 15px;box-shadow:0 5px 15px rgba(17,21,19,.06);color:#646b67;font-size:13px}.icon-btn{width:40px;height:40px;border-radius:50%;background:#fff;color:var(--ink);box-shadow:0 5px 15px rgba(17,21,19,.06);font-size:17px}.layout{max-width:1440px;margin:auto;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(420px,.95fr);gap:24px}.panel{background:rgba(255,255,255,.88);border:1px solid rgba(224,227,224,.85);border-radius:28px;box-shadow:var(--shadow)}.hero{padding:30px 34px;min-height:238px;background:var(--green);position:relative;overflow:hidden}.hero:after{content:"";position:absolute;right:-80px;bottom:-115px;width:330px;height:330px;border:1px solid rgba(16,18,17,.15);border-radius:50%;box-shadow:0 0 0 28px rgba(16,18,17,.035),0 0 0 58px rgba(16,18,17,.025)}.eyebrow{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;opacity:.7}.hero h2{font-size:clamp(34px,4vw,60px);line-height:.98;letter-spacing:-.08em;margin:27px 0 12px;position:relative;z-index:1}.hero h2 span{font-size:.45em;font-weight:650;letter-spacing:-.04em;margin-left:6px}.hero-meta{display:flex;gap:22px;align-items:center;position:relative;z-index:1}.hero-meta small{font-size:12px;color:rgba(17,21,19,.65)}.hero-meta strong{display:block;font-size:16px;margin-top:3px}.hero .hero-action{position:absolute;right:30px;top:30px;background:var(--black);color:#fff;border-radius:999px;padding:11px 15px;font-size:12px;z-index:2}.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.section-head h3{font-size:17px;margin:0;letter-spacing:-.05em}.section-head p{font-size:12px;color:var(--muted);margin:4px 0 0}.content-panel{padding:24px}.account-list{display:flex;flex-direction:column;gap:11px}.account-row{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:13px;padding:13px 14px;border-radius:18px;background:var(--soft);transition:.2s ease}.account-row:hover{transform:translateY(-1px);background:#e9ebe9}.account-row.active{background:#e4f2e8}.account-icon{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#fff;font-weight:900;font-size:14px}.account-info{min-width:0}.account-info strong{font-size:14px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.account-info small{display:block;color:#9ca29f;font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.account-value{text-align:right}.account-value strong{font-size:15px;display:block}.account-value small{color:#9ca29f;font-size:11px;display:block;margin-top:4px}.status-dot{width:8px;height:8px;display:inline-block;border-radius:50%;background:var(--green);margin-right:5px}.status-dot.error{background:var(--red)}.status-dot.pending{background:var(--orange)}.right-col{display:flex;flex-direction:column;gap:24px}.summary-card{padding:26px 28px;min-height:238px}.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}.metric{padding:16px;border-radius:18px;background:var(--soft)}.metric small{color:#999f9c;font-size:11px;display:block}.metric strong{display:block;font-size:24px;letter-spacing:-.07em;margin-top:8px}.metric.green{background:var(--green)}.metric.blue{background:#dff5ff}.metric.dark{background:var(--black);color:#fff}.metric.dark small{color:#9ea7a1}.usage-card{padding:26px 28px}.usage-track{height:14px;border-radius:99px;background:#eef0ef;overflow:hidden;margin:22px 0 10px}.usage-track>span{height:100%;display:block;border-radius:99px;background:var(--black);width:8%}.usage-foot{display:flex;justify-content:space-between;color:#9ba19e;font-size:11px}.quick-card{padding:25px 28px;background:#fff}.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.quick{min-height:106px;border-radius:21px;padding:17px;position:relative;background:var(--soft);overflow:hidden}.quick.green{background:var(--green)}.quick.blue{background:#daf3ff}.quick .quick-icon{font-size:21px}.quick strong{display:block;margin-top:20px;font-size:14px}.quick small{color:#9ba19e;font-size:11px}.quick.green small{color:rgba(17,21,19,.65)}.plus{position:absolute;right:13px;top:13px;width:28px;height:28px;border-radius:50%;background:#fff;font-size:17px}.btn{border-radius:999px;background:var(--black);color:#fff;padding:12px 18px;font-size:13px;font-weight:750;transition:.2s}.btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.16)}.btn.light{background:#fff;color:var(--ink);box-shadow:0 5px 13px rgba(0,0,0,.06)}.btn.green{background:var(--green);color:var(--ink)}.empty{padding:35px 20px;text-align:center;border:1px dashed #d9ddda;border-radius:18px;color:#9aa19d;font-size:13px}.toast{position:fixed;right:26px;bottom:25px;background:var(--black);color:#fff;padding:13px 17px;border-radius:13px;box-shadow:var(--shadow);z-index:20;font-size:13px}.modal-backdrop{position:fixed;inset:0;background:rgba(15,20,17,.32);backdrop-filter:blur(7px);display:grid;place-items:center;padding:20px;z-index:10}.modal{width:min(620px,100%);max-height:calc(100vh - 40px);overflow:auto;background:#fff;border-radius:28px;padding:28px;box-shadow:0 30px 90px rgba(0,0,0,.22)}.modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px}.modal-head h2{font-size:22px;margin:0;letter-spacing:-.06em}.modal-head p{font-size:12px;color:var(--muted);margin:6px 0 0}.close{width:32px;height:32px;border-radius:50%;background:var(--soft);font-size:18px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:7px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:750}.field input,.field select{width:100%;border:1px solid #e0e4e1;background:#f7f8f7;border-radius:13px;padding:12px 13px;color:var(--ink)}.field input::placeholder{color:#b4bab6}.help{font-size:11px;color:#a2a9a5;line-height:1.45}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:23px}.login-shell{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 15% 10%,#d8ffe2,transparent 30%),var(--canvas)}.login-card{width:min(430px,100%);padding:36px;border-radius:30px;background:#fff;box-shadow:var(--shadow)}.login-logo{width:56px;height:56px;background:var(--green);border-radius:18px;display:grid;place-items:center;font-size:26px;font-weight:900;margin-bottom:24px}.login-card h1{font-size:30px;letter-spacing:-.08em;margin:0}.login-card p{font-size:13px;color:#8d9690;line-height:1.6}.login-card form{display:flex;flex-direction:column;gap:14px;margin-top:25px}.login-card .field input{padding:14px;border-radius:15px}.login-card .btn{padding:14px}.login-card .hint{font-size:11px;color:#a2a9a5;text-align:center;margin-top:15px}.divider{height:1px;background:var(--line);margin:22px 0}.table-link{font-size:12px;color:#77807a;background:none;padding:5px}.error-text{color:#db5959;font-size:12px;min-height:17px}.footnote{max-width:1440px;margin:17px auto 0;color:#a0a6a3;font-size:11px;text-align:right}
+@media (max-width:950px){.app-shell{padding:18px}.layout{grid-template-columns:1fr}.right-col{display:grid;grid-template-columns:1fr 1fr}.quick-card{grid-column:1/-1}.topbar{margin-bottom:18px}}
+@media (max-width:650px){.right-col{display:flex}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.hero{padding:25px 23px}.content-panel,.summary-card,.usage-card,.quick-card{padding:21px}.hero-action{right:20px!important;top:20px!important}.app-shell{padding:12px}.topbar{align-items:center;flex-wrap:wrap;gap:12px}.brand{flex-shrink:0}.top-actions{margin-left:auto}.pill{display:none}.account-row{grid-template-columns:38px minmax(0,1fr) auto}.account-value strong{font-size:13px}}
+
+/* Keep the account list within the viewport while the overview grows naturally. */
+.app-shell{height:100dvh;min-height:0;display:flex;flex-direction:column;padding-bottom:20px}
+.topbar{width:100%;flex-shrink:0}.footnote{width:100%;flex-shrink:0;margin-bottom:0}
+.layout{width:100%;flex:1;min-height:0;grid-template-columns:minmax(320px,.95fr) minmax(0,1.05fr)}
+.left-col,.right-col{display:flex;flex-direction:column;gap:24px;min-width:0;min-height:0}
+.left-col{overflow:visible;padding:0}
+.left-col>.panel{flex-shrink:0}.hero{flex-shrink:0;min-height:220px}
+.accounts-panel{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+.accounts-panel>.section-head,.list-toolbar{flex-shrink:0;gap:12px}
+.accounts-panel>.section-head{align-items:flex-start}.table-link{white-space:nowrap}
+.accounts-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:2px 7px 3px 2px}
+.accounts-scroll::-webkit-scrollbar{width:7px}
+.accounts-scroll::-webkit-scrollbar-thumb{background:#ccd3cd;border-radius:8px}
+.account-row{flex-shrink:0;width:100%;text-align:left}.account-value strong,.usage-percent,.hero h2{font-variant-numeric:tabular-nums}
+.list-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;color:#747d76;font-size:12px}
+.sort-control{display:flex;align-items:center;gap:8px}.sort-control select{width:auto;max-width:140px;padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:var(--canvas);color:var(--ink);font-size:12px}
+.sync-status{font-size:11px;color:#66776b;white-space:nowrap}.sync-status:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#38ae5c;margin-right:6px}.sync-status.sync-error{color:#b35439}.sync-status.sync-error:before{background:#d68548}
+.currency-totals{display:flex;align-items:center;flex-wrap:wrap;gap:8px 15px;margin:-1px 0 12px;position:relative;z-index:1;font-size:18px;font-weight:700}.currency-totals small{font-size:11px;font-weight:400;opacity:.65}
+.quick{text-align:left;color:var(--ink);font:inherit}.quick .plus{display:grid;place-items:center}.usage-percent{font-size:24px;font-weight:750;letter-spacing:-.05em}.quick strong,.quick small{display:block}.quick:hover{filter:brightness(.98)}
+.current-error{margin-top:16px;font-size:12px;color:#a54036}.current-error summary{cursor:pointer}.current-error pre,.failure-detail pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;font:12px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:0;margin:10px 0 0;padding:12px;background:#fff6f3;border-radius:10px;color:#8d3930}
+.failure-history{display:flex;flex-direction:column;gap:10px}.failure-record{border:1px solid var(--line);border-radius:15px;background:var(--canvas);overflow:hidden}.failure-record summary{display:flex;align-items:center;gap:12px;cursor:pointer;list-style:none;padding:15px}.failure-record summary::-webkit-details-marker{display:none}.failure-icon{flex-shrink:0;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#ffe6df;color:#ae4936;font-weight:800}.failure-info{flex:1;min-width:0}.failure-info strong{font-size:13px}.failure-info small{font-size:11px;color:#828b84;margin-left:10px}.failure-preview{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#9a5d51;font-size:12px;margin-top:6px;letter-spacing:0}.failure-toggle{font-size:11px;color:#6d766f;flex-shrink:0}.failure-toggle:after{content:"展开 ↓"}.failure-record[open] .failure-toggle:after{content:"收起 ↑"}.failure-detail{border-top:1px solid var(--line);padding:14px 15px;font-size:11px;color:#7b857e}.failure-detail pre{margin-top:8px}
+@media(min-width:951px){.app-shell{height:auto;min-height:100dvh}.layout{flex:1 0 auto;align-items:stretch;grid-template-rows:minmax(max(300px,calc(100dvh - 150px)),auto)}.left-col>.summary-card{flex:1 0 auto}.right-col{position:relative;min-height:0}.right-col>.accounts-panel{position:absolute;inset:0}}
+@media(min-width:951px) and (max-height:780px){.app-shell{padding-top:18px;padding-bottom:12px}.topbar{margin-bottom:16px}.layout,.left-col,.right-col{gap:18px}.hero{min-height:190px;padding:24px 28px}.hero h2{margin:22px 0 10px;font-size:48px}.content-panel{padding:20px}.footnote{margin-top:12px}}
+@media(max-width:950px){.app-shell{height:auto;min-height:100dvh;padding:18px}.layout{display:flex;flex-direction:column;gap:20px;flex:none}.right-col{order:-1;display:flex;gap:20px}.left-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;overflow:visible;padding:0;scrollbar-gutter:auto}.quick-card{grid-column:1/-1}.accounts-panel{flex:none}.accounts-scroll{flex:none;max-height:55dvh;min-height:80px}.topbar{gap:12px}.top-actions{flex-wrap:wrap;justify-content:flex-end}.hero{min-height:220px}.sync-status{font-size:10px}.footnote{text-align:center;line-height:1.8}}
+@media(max-width:650px){.app-shell{padding:12px}.left-col{display:flex}.right-col,.left-col,.layout{gap:16px}.hero{padding:25px 23px;min-height:215px}.hero .eyebrow{font-size:10px}.hero .hero-action{padding:9px 10px;right:16px!important;top:18px!important}.hero h2{font-size:42px;margin-top:35px}.hero h2 span{font-size:.35em}.accounts-panel>.section-head{flex-wrap:wrap;gap:10px}.accounts-panel .section-head p{font-size:11px}.table-link{font-size:12px}.content-panel,.summary-card,.usage-card,.quick-card{padding:20px}.topbar{gap:10px}.top-actions{gap:6px}.top-actions .icon-btn{width:34px;height:34px}.sync-status{flex-basis:100%;text-align:right;order:1}.brand h1{font-size:16px}.brand p{font-size:9px}.brand-mark{width:36px;height:36px}.account-row{gap:8px;padding:12px 10px}.account-info strong{font-size:13px}.failure-info small{display:block;margin:4px 0 0}.failure-record summary{padding:12px;gap:8px}}
+
+/* Summary actions remain with the total balance after simplifying the overview. */
+.hero-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;position:relative;z-index:1}.hero-header .eyebrow{padding-top:9px}.hero-actions{display:flex;flex-direction:column;gap:8px;flex-shrink:0}.hero .hero-actions .hero-action{position:static;min-width:104px;padding:10px 14px}.hero .hero-actions .secondary{background:rgba(255,255,255,.7);color:var(--ink)}.hero h2{margin:14px 0 16px;font-size:clamp(34px,3.7vw,54px)}.hero h2 span{font-size:.35em}.left-col>.summary-card{flex-shrink:0}.left-col .hero{min-height:260px}
+@media(max-width:950px){.left-col{order:-1;display:flex}.right-col{order:0}.left-col .hero{min-height:240px}.hero h2{font-size:48px}.accounts-scroll{max-height:55dvh}}
+@media(max-width:650px){.hero .hero-actions .hero-action{min-width:96px;font-size:11px;padding:9px 11px}.hero-header{gap:10px}.hero h2{font-size:40px;margin-top:18px}.left-col .hero{min-height:250px}}
+ .history-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 16px}.history-toolbar>span{font-size:12px;color:#818984;line-height:1.5}.history-toolbar .btn{flex-shrink:0;padding:9px 13px}.history-toolbar button:disabled{cursor:default;opacity:.45}
+.storage-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.storage-toolbar>span{font-size:12px;color:var(--muted)}.storage-toolbar .btn{padding:8px 12px}.storage-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:24px}.storage-metric{border-radius:16px;background:var(--soft);padding:14px;min-width:0}.storage-metric small,.storage-metric span{display:block;font-size:11px;color:#818984}.storage-metric strong{display:block;font-size:21px;letter-spacing:-.04em;margin:6px 0;overflow-wrap:anywhere}.storage-note{font-size:12px;line-height:1.8;color:#6e7872;margin-top:12px}#storage-fields{border:0;padding:0;margin:0;min-width:0}#storage-form .help{line-height:1.7}#storage-form button:disabled,.storage-toolbar button:disabled{opacity:.5;cursor:default}@media(max-width:650px){.storage-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" class="toast hidden"></div>
+<div id="modal-root"></div>
+<script>
+const state={accounts:[],platforms:null,history:[],alertSettings:null,setupRequired:false,authenticated:false,selectedId:null,loading:false,sortOrder:'asc',syncError:false,lastSyncedAt:null};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+const money=(v,c='USD')=>`${c==='USD'?'$':c+' '}${Number(v||0).toFixed(2)}`;
+const usageText=a=>{if(!a?.usage_ready)return '数据积累中';return Number(a.consumption||0)>1e-9?money(a.consumption,a.currency):'暂无消耗'};
+const etaText=a=>{if(!a?.usage_ready)return '数据积累中';const consumption=Number(a.consumption||0),hours=Number(a.estimated_hours||0);if(consumption<=1e-9)return '暂无消耗';if(!Number.isFinite(hours)||hours<=0)return '不足 1 小时';return hours>24?`${(hours/24).toFixed(hours/24>=100?0:1)} 天`:`${hours.toFixed(hours<10?1:0)} 小时`};
+const usageWindowText=a=>`近${Number(a?.usage_window_hours||24)}小时`;
+const date=v=>v?new Date(v).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'尚未查询';
+const providerLabel=p=>p==='sub2api'?'Sub2API':p==='new-api'?'New-API':'自定义兼容';
+const initials=n=>String(n||'?').slice(0,1).toUpperCase();
+function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.remove('hidden');clearTimeout(window.__toast);window.__toast=setTimeout(()=>el.classList.add('hidden'),2600)}
+async function api(path,opt={}){
+  const res=await fetch(path,{...opt,credentials:'same-origin',cache:'no-store',signal:opt.signal||AbortSignal.timeout(15000),headers:{'Content-Type':'application/json',...(opt.headers||{})}});
+  let data={};try{data=await res.json()}catch{}
+  if(!res.ok){const error=new Error(data.error||'请求失败');error.status=res.status;throw error}
+  return data;
+}
+let syncTimer=null;
+let refreshInFlight=null;
+let syncGeneration=0;
+async function boot(){const status=await api('/api/auth/status');state.setupRequired=status.setup_required;state.authenticated=status.authenticated;if(state.authenticated){try{await refresh()}catch(err){if(err.status===401)state.authenticated=false;else state.syncError=true}}render()}
+async function refresh(){
+  if(refreshInFlight)return refreshInFlight;
+  const generation=syncGeneration;
+  refreshInFlight=(async()=>{
+    const [accounts,settings,platforms]=await Promise.all([api('/api/accounts'),api('/api/settings/alerts'),state.platforms?Promise.resolve(state.platforms):api('/api/platforms')]);
+    if(generation!==syncGeneration||!state.authenticated)return;
+    state.accounts=accounts;state.alertSettings=settings;state.platforms=platforms;
+    state.lastSyncedAt=new Date();state.syncError=false;
+    if(!state.selectedId||!accounts.some(a=>a.id===state.selectedId))state.selectedId=accounts[0]?.id||null;
+  })();
+  try{await refreshInFlight}finally{refreshInFlight=null}
+}
+function stopSync(){clearTimeout(syncTimer);syncTimer=null}
+function scheduleSync(delay){
+  stopSync();
+  if(!state.authenticated||document.hidden)return;
+  const interval=Math.max(1000,Math.min(5000,Number(state.alertSettings?.monitor_interval_seconds||10)*1000));
+  syncTimer=setTimeout(syncDashboard,delay??interval);
+}
+function updateSyncStatus(){
+  const status=$('#sync-status');
+  if(status){status.textContent=state.syncError?'同步中断，正在重试':`已同步 ${state.lastSyncedAt?.toLocaleTimeString('zh-CN',{hour12:false})||''}`;status.classList.toggle('sync-error',state.syncError)}
+}
+async function syncDashboard(){
+  const generation=syncGeneration;
+  try{
+    const before=JSON.stringify([state.accounts,state.alertSettings]);
+    await refresh();
+    if(generation!==syncGeneration||!state.authenticated)return;
+    if(before!==JSON.stringify([state.accounts,state.alertSettings]))renderDashboard();
+    updateSyncStatus();
+  }catch(err){
+    if(generation!==syncGeneration||!state.authenticated)return;
+    if(err.status===401){syncGeneration++;state.authenticated=false;closeModal();render();toast('登录已过期，请重新登录');return}
+    state.syncError=true;updateSyncStatus();
+  }finally{if(generation===syncGeneration)scheduleSync()}
+}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopSync();else scheduleSync(0)});
+window.addEventListener('online',()=>scheduleSync(0));
+function render(){if(!state.authenticated){stopSync();renderAuth();return}renderDashboard();scheduleSync()}
+function sortedAccounts(){
+  const direction=state.sortOrder==='asc'?1:-1;
+  return [...state.accounts].sort((a,b)=>direction*(Number(a.balance||0)-Number(b.balance||0))||a.id-b.id);
+}
+function groupedBalances(){
+  const totals=new Map();
+  for(const account of state.accounts){const currency=account.currency||'USD';totals.set(currency,(totals.get(currency)||0)+Number(account.balance||0))}
+  return [...totals].sort((a,b)=>a[0].localeCompare(b[0]));
+}
+function renderAuth(){const setup=state.setupRequired;$('#app').innerHTML=`<main class="login-shell"><section class="login-card"><div class="login-logo">⌁</div><h1>${setup?'先建立你的余额台':'欢迎回来'}</h1><p>${setup?'只在本机保存一个管理员账号。之后可以集中查看多个中转站的余额。':'登录后管理所有中转站、阈值和自动检查。'}</p><form id="auth-form"><div class="field"><label>管理员账号</label><input name="username" autocomplete="username" placeholder="例如 admin" required minlength="3" /></div><div class="field"><label>${setup?'设置密码':'密码'}</label><input name="password" type="password" autocomplete="current-password" placeholder="至少 6 位" required minlength="6" /></div><div class="error-text" id="auth-error"></div><button class="btn" type="submit">${setup?'初始化余额台':'进入控制台'} <span>↗</span></button></form><div class="hint">密码只用于本地登录；中转站凭据会以加密形式存储。</div></section></main>`;$('#auth-form').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget);const payload={username:f.get('username'),password:f.get('password')};try{await api(setup?'/api/auth/setup':'/api/auth/login',{method:'POST',body:JSON.stringify(payload)});if(setup){state.setupRequired=false;render();toast('初始化完成，请登录')}else{state.authenticated=true;await refresh();render()}}catch(err){$('#auth-error').textContent=err.message}}}
+function renderDashboard(){
+  const errorExpanded=$('.current-error')?.open||false;
+  const scrollTop=$('#account-list')?.scrollTop||0;
+  const overviewScroll=$('#overview-column')?.scrollTop||0;
+  const focusId=$('#app').contains(document.activeElement)?document.activeElement.id:null;
+  const healthy=state.accounts.filter(a=>a.status==='ok').length;
+  const low=state.accounts.filter(a=>a.threshold>0&&a.balance<=a.threshold).length;
+  const selected=state.accounts.find(a=>a.id===state.selectedId)||state.accounts[0];
+  const totals=groupedBalances();
+  const primary=totals[0]||['USD',0];
+  $('#app').innerHTML=`<div class="app-shell">
+    <header class="topbar"><div class="brand"><div class="brand-mark">⌁</div><div><h1>余额台</h1><p>Balance monitor / v0.1</p></div></div>
+      <div class="top-actions"><span class="sync-status" id="sync-status" role="status"></span><span class="pill">${healthy}/${state.accounts.length} 个连接正常</span><button class="icon-btn" title="导入 / 导出" aria-label="导入 / 导出" id="backup-btn">⇅</button><button class="icon-btn" title="告警配置" aria-label="告警配置" id="alert-settings-btn">⚙</button><button class="icon-btn" title="存储管理" aria-label="存储管理" id="storage-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 4 16 4 16 0V5M4 12c0 4 16 4 16 0"/></svg></button><button class="icon-btn" title="修改密码" aria-label="修改密码" id="password-btn">⌘</button><button class="icon-btn" title="退出" aria-label="退出" id="logout-btn">⎋</button></div>
+    </header>
+    <main class="layout">
+      <div class="left-col" id="overview-column">
+        <section class="panel hero"><div class="hero-header"><span class="eyebrow">所有中转站 · 当前可用余额</span><div class="hero-actions"><button class="hero-action" id="add-btn">+ 添加站点</button><button class="hero-action secondary" id="check-all-btn">↻ 检查全部</button></div></div><h2>${money(primary[1],primary[0])} <span>总余额</span></h2>${totals.length>1?`<div class="currency-totals">${totals.slice(1).map(([currency,value])=>`<span>${money(value,currency)}</span>`).join('')}<small>按币种分别统计</small></div>`:''}<div class="hero-meta"><div><small>已接入</small><strong>${state.accounts.length} 个站点</strong></div><div><small>低余额提醒</small><strong>${low?low+' 个需要关注':'全部安全'}</strong></div></div></section>
+
+        <section class="panel summary-card"><div class="section-head"><div class="selected-heading"><h3>${selected?esc(selected.name):'余额概览'}</h3><p>${selected?providerLabel(selected.provider)+' · '+esc(selected.identifier):'选择一个账户查看详情'}</p></div>${selected?`<div class="selected-actions"><button class="table-link" id="edit-selected">编辑</button><button class="table-link" id="check-selected">立即检查 ↗</button></div>`:''}</div>
+          <div class="summary-grid"><div class="metric green"><small>可用余额</small><strong>${selected?money(selected.balance,selected.currency):'—'}</strong></div><div class="metric blue"><small>提醒阈值</small><strong>${selected?money(selected.threshold,selected.currency):'—'}</strong></div><div class="metric"><small>${selected?usageWindowText(selected):'近24小时'}消耗</small><strong>${selected?usageText(selected):'—'}</strong></div><div class="metric"><small>预计可用时间</small><strong>${selected?etaText(selected):'—'}</strong></div><div class="metric dark"><small>连接状态</small><strong class="metric-status">${selected?(selected.status==='ok'?'运行正常':selected.status==='error'?'需检查':'待查询'):'—'}</strong></div><div class="metric"><small>上次检查</small><strong class="metric-status">${selected?date(selected.last_checked_at):'—'}</strong></div></div>
+          ${selected?.status==='error'?`<details class="current-error"><summary>查看当前报错详情</summary><pre>${esc(selected.error||'接口未提供错误详情')}</pre></details>`:''}
+        </section>
+
+      </div>
+      <div class="right-col">
+        <section class="panel content-panel accounts-panel"><div class="section-head"><div><h3>中转站账户</h3><p>点击账户查看详情，余额会自动同步</p></div><button class="table-link" id="history-btn">查看最近失败记录 →</button></div>
+          <div class="list-toolbar"><span>${state.accounts.length} 个账户</span><label class="sort-control" for="balance-sort">余额排序<select id="balance-sort"><option value="asc" ${state.sortOrder==='asc'?'selected':''}>从低到高 ↑</option><option value="desc" ${state.sortOrder==='desc'?'selected':''}>从高到低 ↓</option></select></label></div>
+          <div class="account-list accounts-scroll" id="account-list" tabindex="0" aria-label="中转站账户列表">${state.accounts.length?sortedAccounts().map(a=>accountRow(a)).join(''):`<div class="empty">还没有账户，添加第一个中转站开始监控。</div>`}</div>
+        </section>
+      </div>
+    </main>
+    <div class="footnote">每 ${Number(state.alertSettings?.monitor_interval_seconds||10)} 秒自动检查 · 页面自动同步 · 配置和凭据已加密存储</div>
+  </div>`;
+  bindDashboard();
+  $('#account-list').scrollTop=scrollTop;
+  $('#overview-column').scrollTop=overviewScroll;
+  if($('.current-error'))$('.current-error').open=errorExpanded;
+  if(focusId)document.getElementById(focusId)?.focus({preventScroll:true});
+  updateSyncStatus();
+}
+function accountRow(a){const stateClass=a.status==='ok'?'':a.status==='error'?'error':'pending';const low=a.threshold>0&&a.balance<=a.threshold;return `<button class="account-row ${a.id===state.selectedId?'active':''}" data-id="${a.id}"><span class="account-icon">${initials(a.name)}</span><span class="account-info"><strong><span class="status-dot ${stateClass}"></span>${esc(a.name)} ${a.status==='error'?'· 检查失败':''} ${low?'· 余额偏低':''}</strong><small>${providerLabel(a.provider)} · ${esc(a.base_url)}</small></span><span class="account-value"><strong>${money(a.balance,a.currency)}</strong><small>${usageWindowText(a)}消耗 ${usageText(a)}</small><small>预计 ${etaText(a)}</small></span></button>`}
+function bindDashboard(){
+  $$('.account-row').forEach(el=>el.onclick=()=>{state.selectedId=Number(el.dataset.id);renderDashboard()});
+  $('#balance-sort').onchange=e=>{state.sortOrder=e.target.value;renderDashboard()};
+  $('#add-btn').onclick=()=>openAccountModal();
+  $('#backup-btn').onclick=()=>openBackupModal();$('#alert-settings-btn').onclick=()=>openAlertSettings();$('#password-btn').onclick=()=>openPasswordModal();
+  $('#logout-btn').onclick=async()=>{try{await api('/api/auth/logout',{method:'POST'});syncGeneration++;state.authenticated=false;closeModal();render()}catch(err){toast(err.message)}};
+  $('#check-all-btn').onclick=checkAll;
+  $('#edit-selected')?.addEventListener('click',()=>openAccountModal(state.accounts.find(a=>a.id===state.selectedId)));
+  $('#check-selected')?.addEventListener('click',()=>checkOne(state.selectedId));
+  $('#history-btn').onclick=openHistory;
+  $('#storage-btn').onclick=openStorage;
+}
+async function checkOne(id){if(!id)return;toast('正在查询余额…');try{await api(`/api/accounts/${id}/check`,{method:'POST',signal:AbortSignal.timeout(120000)});await refresh();render();toast('余额已更新')}catch(err){await refresh();render();toast(err.message)}}
+async function checkAll(){toast('正在检查全部账户…');try{await refresh();for(const a of state.accounts.filter(x=>x.enabled)){try{await api(`/api/accounts/${a.id}/check`,{method:'POST',signal:AbortSignal.timeout(120000)})}catch{}}await refresh();render();toast('全部检查完成')}catch(err){toast(err.message)}}
+function modal(content){$('#modal-root').innerHTML=`<div class="modal-backdrop" id="backdrop"><section class="modal">${content}</section></div>`;$('#backdrop').onclick=e=>{if(e.target.id==='backdrop')closeModal()};$('#modal-close')?.addEventListener('click',closeModal)}function closeModal(){$('#modal-root').innerHTML=''}
+function bytes(value){
+  const size=Number(value||0);if(size<1024)return size+' B';
+  const units=['KB','MB','GB','TB'];const power=Math.min(Math.floor(Math.log(size)/Math.log(1024)),units.length);
+  return (size/1024**power).toFixed(1)+' '+units[power-1];
+}
+async function openStorage(){
+  modal(`<div class="modal-head"><div><h2>存储管理</h2><p>查看空间占用，管理检查记录与定时清理。</p></div><button class="close" id="modal-close" aria-label="关闭">×</button></div>
+    <div class="storage-toolbar"><span id="storage-query-status">正在读取…</span><button class="btn light" id="storage-refresh" type="button">刷新统计</button></div>
+    <div id="storage-stats" class="storage-stats" aria-live="polite"><div class="empty">正在读取存储统计…</div></div>
+    <form id="storage-form"><fieldset id="storage-fields" disabled><div class="settings-section"><h3>定时清理</h3>
+    <label class="check-line"><input name="enabled" type="checkbox" />启用自动清理</label><div class="form-grid" style="margin-top:16px">
+      <div class="field"><label>自动清理间隔（小时）</label><input name="interval_hours" type="number" min="1" max="168" value="24" required /></div>
+      <div class="field"><label>失败记录保留数量</label><input value="最近 20 条" disabled /></div>
+    </div><p class="help">成功检查只更新账户最新余额，不再写入历史。清理时删除旧版本遗留的成功历史和过期登录会话；失败历史始终保留最近 20 条。</p></div>
+    <div id="storage-schedule" class="storage-note"></div><div id="storage-last-result" class="storage-note"></div>
+    <div class="settings-section"><h3>立即清理</h3><label class="check-line"><input id="storage-compact" type="checkbox" checked />同时压缩数据库，回收空闲页占用</label>
+    <p class="help">立即清理使用已保存的规则。自动清理在空闲页较多且空间充足时也会压缩。站点、凭据、告警配置、有效登录会话和备份文件会保留。</p>
+    <p class="help">随项目 Compose 部署时，Docker 日志按每份 10 MB、最多 3 份轮转。其他文件包含备份，仅统计占用；不自动删除。</p></div>
+    <div class="error-text" id="storage-error" role="status"></div><div class="modal-actions"><button class="btn light" id="storage-cleanup" type="button">立即清理</button><button class="btn green" id="storage-save" type="submit">保存设置</button></div>
+    </fieldset></form>`);
+  const root=$('#storage-form'),fields=$('#storage-fields'),stats=$('#storage-stats'),refreshButton=$('#storage-refresh'),saveButton=$('#storage-save'),cleanupButton=$('#storage-cleanup'),error=$('#storage-error');
+  let busy=false,loaded=false;
+  const display=data=>{
+    const metric=(label,value,detail='')=>`<div class="storage-metric"><small>${label}</small><strong>${value}</strong>${detail?`<span>${detail}</span>`:''}</div>`;
+    stats.innerHTML=metric('数据库及附属文件',bytes(data.database_files_bytes))+metric('数据库可回收空间',bytes(data.reusable_bytes))+metric('余额采样记录',Number(data.balance_snapshots||0).toLocaleString()+' 条','用于消耗和预计可用时间')+metric('失败检查记录',Number(data.failure_records).toLocaleString()+' 条')+metric('磁盘可用空间',data.disk_error?'无法读取':bytes(data.disk_available_bytes),data.disk_error?esc(data.disk_error):'总容量 '+bytes(data.disk_total_bytes))+metric('其他文件（含备份）',bytes(data.other_data_bytes));
+    if(!loaded){for(const key of ['interval_hours'])root.elements[key].value=data.settings[key];root.elements.enabled.checked=data.settings.enabled;loaded=true}
+    $('#storage-schedule').textContent=data.settings.enabled?'下次自动清理：'+date(data.next_cleanup_at)+'（到期后 1 分钟内执行）':'自动清理已关闭';
+    const last=data.last_cleanup;
+    $('#storage-last-result').textContent=last?'上次清理：'+date(last.checked_at)+' · 删除成功记录 '+last.success_deleted+' 条、失败记录 '+last.failure_deleted+' 条、余额采样 '+(last.snapshot_deleted||0)+' 条、过期会话 '+last.sessions_deleted+' 个 · 回收 '+bytes(last.reclaimed_bytes)+(last.compacted?' · 数据库已压缩':'')+(last.compaction_note?' · '+last.compaction_note:'')+(data.last_error?' · '+data.last_error:''):'尚未执行清理'+(data.last_error?' · '+data.last_error:'');
+    $('#storage-query-status').textContent='统计更新于 '+new Date().toLocaleTimeString('zh-CN');
+  };
+  const load=async()=>{
+    const data=await api('/api/settings/storage',{signal:AbortSignal.timeout(210000)});
+    if(!root.isConnected)return;
+    display(data);fields.disabled=false;
+  };
+  const lock=value=>{busy=value;fields.disabled=value||!loaded;refreshButton.disabled=value};
+  refreshButton.onclick=async()=>{
+    if(busy)return;lock(true);error.textContent='';
+    try{await load()}catch(err){if(root.isConnected)error.textContent=err.message}finally{if(root.isConnected)lock(false)}
+  };
+  root.onsubmit=async e=>{
+    e.preventDefault();if(busy)return;const form=new FormData(root),payload={enabled:form.has('enabled')};
+    for(const key of ['interval_hours'])payload[key]=Number(form.get(key));
+    lock(true);error.textContent='';saveButton.textContent='正在保存…';
+    try{await api('/api/settings/storage',{method:'PUT',body:JSON.stringify(payload)});if(!root.isConnected)return;toast('存储设置已保存');await load()}catch(err){if(root.isConnected)error.textContent=err.message}finally{if(root.isConnected){lock(false);saveButton.textContent='保存设置'}}
+  };
+  cleanupButton.onclick=async()=>{
+    if(busy)return;const compact=$('#storage-compact').checked;lock(true);error.textContent='';cleanupButton.textContent='正在清理…';
+    try{const result=await api('/api/settings/storage/cleanup',{method:'POST',body:JSON.stringify({compact}),signal:AbortSignal.timeout(210000)});if(!root.isConnected)return;toast('清理完成，回收 '+bytes(result.reclaimed_bytes));await load()}catch(err){if(root.isConnected)error.textContent=err.message}finally{if(root.isConnected){lock(false);cleanupButton.textContent='立即清理'}}
+  };
+  lock(true);
+  try{await load()}catch(err){if(root.isConnected){error.textContent=err.message;$('#storage-query-status').textContent='读取失败，可刷新重试'}}finally{if(root.isConnected){busy=false;fields.disabled=!loaded;refreshButton.disabled=false}}
+}
+function openBackupModal(){
+  let busy=false;
+  modal(`<div class="modal-head"><div><h2>导入 / 导出</h2><p>把本地配置带到服务器，省去重复填写。</p></div><button class="close" id="modal-close" aria-label="关闭">×</button></div>
+    <div style="display:flex;gap:10px;margin-bottom:20px"><button class="btn" type="button" id="backup-export-tab">导出备份</button><button class="btn light" type="button" id="backup-import-tab">导入备份</button></div>
+    <div class="hint" style="margin-bottom:20px;line-height:1.8;font-size:12px;color:var(--muted)">包含全部站点、账号密码、访问令牌、New-API 用户 ID、自定义接口、提醒阈值和告警配置。<br>备份由 BalanceMT 自动加密，导入时自动解密，无需口令，请妥善保管文件。<br>不包含管理员账号、登录状态和余额历史。</div>
+    <form id="backup-export-form"><div class="help">直接下载备份，在新服务器选择文件即可导入，无需设置或记忆备份口令。</div><div class="modal-actions"><button class="btn" type="submit">下载加密备份 ↓</button></div></form>
+    <form id="backup-import-form" hidden><div class="form-grid"><div class="field full"><label for="backup-file">备份文件</label><input id="backup-file" name="file" type="file" accept=".json,application/json" required /><div class="help">选择 BalanceMT 导出的 .balancemt.json 文件，最大 8 MB。</div></div><div class="field full"><label for="backup-mode">遇到重复站点</label><select id="backup-mode" name="mode"><option value="skip">跳过重复站点（推荐）</option><option value="overwrite">用备份覆盖重复站点</option></select><div class="help">同平台、同站点地址、同账号视为重复。覆盖会替换该站点的配置和凭据，余额等待自动重新查询；其他站点保留。</div></div><div class="field full"><label class="check-line" style="display:flex;align-items:center;gap:9px"><input name="import_alerts" type="checkbox" style="width:auto;flex:0 0 auto;margin:0" checked /> 同时导入告警配置和检查间隔</label><div class="help">勾选后会替换当前邮件、短信和检查间隔配置，保存后立即生效。</div></div></div><div class="modal-actions"><button class="btn" type="submit">开始导入 ↑</button></div></form>
+    <div class="error-text" id="backup-error" role="alert"></div><div id="backup-result" role="status" style="font-size:13px;line-height:1.8;margin-top:14px;white-space:pre-line"></div>`);
+  const exportForm=$('#backup-export-form'),importForm=$('#backup-import-form'),error=$('#backup-error'),result=$('#backup-result');
+  const setBusy=value=>{busy=value;$$('#modal-root button,#modal-root input,#modal-root select').forEach(el=>el.disabled=value)};
+  const switchTab=which=>{if(busy)return;exportForm.hidden=which!=='export';importForm.hidden=which!=='import';$('#backup-export-tab').className=which==='export'?'btn':'btn light';$('#backup-import-tab').className=which==='import'?'btn':'btn light';error.textContent='';result.textContent=''};
+  $('#backup-export-tab').onclick=()=>switchTab('export');$('#backup-import-tab').onclick=()=>switchTab('import');
+  $('#backdrop').onclick=e=>{if(e.target.id==='backdrop'&&!busy)closeModal()};
+  const readFile=async file=>{if(!file||!file.size)throw new Error('请选择备份文件');if(file.size>8*1024*1024)throw new Error('备份文件不能超过 8 MB');let backup;try{backup=JSON.parse(await file.text())}catch{throw new Error('文件不是有效的 JSON 备份，请选择 BalanceMT 导出的文件')}if(!backup||backup.format!=='balancemt-backup'||backup.version!==3||backup.algorithm!=='aes-256-gcm'||backup.key_id!=='balancemt-project-v1')throw new Error('不是支持的 BalanceMT 备份，或备份版本不兼容');return backup};
+  $('#backup-file').onchange=async()=>{error.textContent='';result.textContent='';const file=$('#backup-file').files[0];if(!file)return;setBusy(true);try{await readFile(file)}catch(err){error.textContent=err.message}finally{setBusy(false)}};
+
+  exportForm.onsubmit=async e=>{e.preventDefault();error.textContent='';result.textContent='';setBusy(true);try{const backup=await api('/api/settings/backup/export',{method:'POST',body:JSON.stringify({})});const blob=new Blob([JSON.stringify(backup)],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=`balancemt-${new Date().toISOString().replace(/[:.]/g,'-')}.balancemt.json`;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);exportForm.reset();result.textContent='加密备份已生成，无需口令，请妥善保管文件。\n到服务器登录后，在这里选择「导入备份」即可恢复配置。'}catch(err){error.textContent=err.message}finally{setBusy(false)}};
+  importForm.onsubmit=async e=>{e.preventDefault();error.textContent='';result.textContent='';const f=new FormData(importForm);const file=f.get('file');if(!file||!file.size){error.textContent='请选择备份文件';return}if(file.size>8*1024*1024){error.textContent='备份文件不能超过 8 MB';return}setBusy(true);try{const backup=await readFile(file);const out=await api('/api/settings/backup/import',{method:'POST',body:JSON.stringify({backup,mode:f.get('mode'),import_alerts:f.get('import_alerts')==='on'})});importForm.reset();result.textContent=`导入成功：新增 ${out.added} 个，覆盖 ${out.updated} 个，跳过 ${out.skipped} 个。\n${out.alerts_imported?'告警配置、检查间隔和统计窗口已生效。':'保留了当前告警配置、检查间隔和统计窗口。'}站点余额将在后台自动检查时更新。`;try{await refresh();render()}catch{result.textContent+='\n配置已保存，列表刷新失败，请手动刷新页面。'}result.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(err){error.textContent=err.message;error.scrollIntoView({block:'nearest',behavior:'smooth'})}finally{setBusy(false)}};
+}
+
+function settingsPayload(form){const f=new FormData(form);return {monitor_interval_seconds:Number(f.get('monitor_interval_seconds')||10),usage_window_hours:Number(f.get('usage_window_hours')||24),smtp_host:String(f.get('smtp_host')||''),smtp_port:Number(f.get('smtp_port')||587),smtp_username:String(f.get('smtp_username')||''),smtp_password:String(f.get('smtp_password')||''),smtp_from:String(f.get('smtp_from')||''),alert_email_to:String(f.get('alert_email_to')||''),sms_provider:String(f.get('sms_provider')||''),sms_to:String(f.get('sms_to')||''),sms_webhook_url:String(f.get('sms_webhook_url')||''),sms_webhook_token:String(f.get('sms_webhook_token')||''),twilio_account_sid:String(f.get('twilio_account_sid')||''),twilio_auth_token:String(f.get('twilio_auth_token')||''),twilio_from:String(f.get('twilio_from')||''),clear_smtp_password:f.get('clear_smtp_password')==='on',clear_sms_webhook_token:f.get('clear_sms_webhook_token')==='on',clear_twilio_auth_token:f.get('clear_twilio_auth_token')==='on'}}
+function openAlertSettings(){const a=state.alertSettings||{};const value=(key,fallback='')=>esc(a[key]??fallback);modal(`<div class="modal-head"><div><h2>告警配置</h2><p>页面保存后立即生效，不需要修改 env 或重启容器。</p></div><button class="close" id="modal-close">×</button></div><form id="alert-settings-form"><div class="settings-section"><h3>检查频率</h3><div class="form-grid"><div class="field"><label>余额检查间隔（秒）</label><input name="monitor_interval_seconds" type="number" min="1" max="86400" value="${value('monitor_interval_seconds',10)}" required /><span class="help">默认 10 秒，修改后实时生效。</span></div><div class="field"><label>消耗统计窗口（小时）</label><input name="usage_window_hours" type="number" min="1" max="720" value="${value('usage_window_hours',24)}" required /><span class="help">默认统计近 24 小时，根据余额采样估算；充值与消费同时发生或检查中断时可能有偏差。</span></div></div></div><div class="settings-section"><h3>邮件告警（SMTP）</h3><div class="form-grid"><div class="field"><label>SMTP 主机</label><input name="smtp_host" value="${value('smtp_host')}" placeholder="smtp.qq.com" /></div><div class="field"><label>SMTP 端口</label><input name="smtp_port" type="number" min="1" max="65535" value="${value('smtp_port',587)}" /></div><div class="field"><label>SMTP 用户名</label><input name="smtp_username" value="${value('smtp_username')}" /></div><div class="field"><label>SMTP 密码 / 授权码</label><input name="smtp_password" type="password" autocomplete="new-password" placeholder="${a.smtp_password_configured?'已配置，留空保持不变':'填写 SMTP 密码或授权码'}" /></div><div class="field"><label>发件人</label><input name="smtp_from" type="email" value="${value('smtp_from')}" placeholder="alert@example.com" /></div><div class="field full"><label>接收邮箱</label><input name="alert_email_to" value="${value('alert_email_to')}" placeholder="me@example.com, other@example.com" /><span class="help">多个邮箱用逗号或分号分隔。</span></div><div class="field full"><label class="check-line"><input name="clear_smtp_password" type="checkbox" /> 清空已保存的 SMTP 密码</label></div></div></div><div class="settings-section"><h3>短信告警</h3><div class="form-grid"><div class="field"><label>短信方式</label><select name="sms_provider"><option value="" ${!a.sms_provider?'selected':''}>关闭</option><option value="twilio" ${a.sms_provider==='twilio'?'selected':''}>Twilio</option><option value="webhook" ${a.sms_provider==='webhook'?'selected':''}>Webhook</option></select></div><div class="field"><label>接收手机号</label><input name="sms_to" value="${value('sms_to')}" placeholder="+8613800000000" /></div><div class="field full"><label>Webhook 地址</label><input name="sms_webhook_url" type="url" value="${value('sms_webhook_url')}" placeholder="https://sms.example.com/send" /></div><div class="field"><label>Webhook Token</label><input name="sms_webhook_token" type="password" autocomplete="new-password" placeholder="${a.sms_webhook_token_configured?'已配置，留空保持不变':'可选'}" /></div><div class="field"><label>Webhook Token 清理</label><label class="check-line"><input name="clear_sms_webhook_token" type="checkbox" /> 清空</label></div><div class="field"><label>Twilio Account SID</label><input name="twilio_account_sid" value="${value('twilio_account_sid')}" /></div><div class="field"><label>Twilio Auth Token</label><input name="twilio_auth_token" type="password" autocomplete="new-password" placeholder="${a.twilio_auth_token_configured?'已配置，留空保持不变':'填写 Token'}" /></div><div class="field"><label>Twilio 发件号码</label><input name="twilio_from" value="${value('twilio_from')}" placeholder="+1..." /></div><div class="field full"><label class="check-line"><input name="clear_twilio_auth_token" type="checkbox" /> 清空已保存的 Twilio Auth Token</label></div></div></div><div class="error-text" id="alert-settings-error"></div><div class="modal-actions"><button type="button" class="btn light" id="modal-cancel">取消</button><button type="button" class="btn light" id="alert-test">测试告警</button><button class="btn" type="submit">保存配置</button></div></form>`);$('#modal-cancel').onclick=closeModal;const form=$('#alert-settings-form');const error=$('#alert-settings-error');$('#alert-test').onclick=async()=>{error.textContent='';try{await api('/api/settings/alerts/test',{method:'POST',body:JSON.stringify(settingsPayload(form))});toast('测试告警已发送')}catch(err){error.textContent=err.message}};form.onsubmit=async e=>{e.preventDefault();error.textContent='';try{state.alertSettings=await api('/api/settings/alerts',{method:'PUT',body:JSON.stringify(settingsPayload(form))});await refresh();closeModal();toast('告警配置已保存');render()}catch(err){error.textContent=err.message}}}
+function openPasswordModal(){modal(`<div class="modal-head"><div><h2>修改登录密码</h2><p>验证原密码后设置新的控制台登录密码。</p></div><button class="close" id="modal-close">×</button></div><form id="password-form"><div class="form-grid"><div class="field full"><label>原密码</label><input name="current_password" type="password" autocomplete="current-password" required /></div><div class="field"><label>新密码</label><input name="new_password" type="password" autocomplete="new-password" minlength="6" required /><span class="help">至少 6 位。</span></div><div class="field"><label>确认新密码</label><input name="confirm_password" type="password" autocomplete="new-password" minlength="6" required /></div><div class="error-text full" id="password-error"></div></div><div class="modal-actions"><button type="button" class="btn light" id="modal-cancel">取消</button><button class="btn" type="submit">保存新密码</button></div></form>`);$('#modal-cancel').onclick=closeModal;$('#password-form').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget);const payload=Object.fromEntries(f.entries());const error=$('#password-error');error.textContent='';try{await api('/api/auth/change-password',{method:'POST',body:JSON.stringify(payload)});closeModal();toast('密码已修改')}catch(err){error.textContent=err.message}}}function openAccountModal(account=null){
+  const editing=!!account;
+  const baseProvider=account?.base_provider||(account?.provider==='sub2api'?'sub2api':'new-api');
+  const template=state.platforms[baseProvider];
+  const value=(key,fallback='')=>esc(account?.[key]??fallback);
+  modal(`<div class="modal-head"><div><h2>${editing?'编辑账户':'添加账户'}</h2><p>选择基础平台，按需调整接口参数。</p></div><button class="close" id="modal-close">×</button></div>
+  <form id="account-form" data-id="${editing?account.id:''}"><div class="form-grid">
+    <div class="field"><label>显示名称</label><input name="name" value="${value('name')}" placeholder="例如 主站 / 备用站" required /></div>
+    <div class="field"><label>平台类型</label><select name="base_provider" id="provider"><option value="new-api" ${baseProvider==='new-api'?'selected':''}>New-API</option><option value="sub2api" ${baseProvider==='sub2api'?'selected':''}>Sub2API</option></select><span class="help">切换平台会重置下方接口参数。</span></div>
+    <div class="field full"><label>站点地址</label><input name="base_url" type="url" value="${value('base_url')}" placeholder="https://api.example.com" required /><span class="help">填写站点地址，接口路径在下方单独配置。</span></div>
+    <div class="field"><label>登录账号</label><input name="identifier" value="${value('identifier')}" placeholder="用户名或邮箱" required /></div>
+    <div class="field"><label>${editing?'新密码（可选）':'登录密码（可选）'}</label><input name="password" type="password" autocomplete="new-password" placeholder="${editing?'留空则保留原密码':'账号密码登录时填写'}" /></div>
+    <div class="field full"><label>访问令牌（可选）</label><input name="access_token" type="password" autocomplete="off" placeholder="${editing?'留空则保留原令牌':'填写后优先使用令牌查询'}" /><span class="help">令牌会加密保存；填写访问令牌后将跳过账号密码登录。</span></div>
+    <div class="field"><label>New-API 用户 ID（可选）</label><input name="api_user_id" value="${value('api_user_id')}" placeholder="例如 123" /><span class="help">部分 New-API 站点要求此数字 ID，会发送为 New-Api-User 请求头。</span></div>
+    <div class="field"><label>币种</label><select name="currency"><option ${value('currency','USD')==='USD'?'selected':''}>USD</option><option ${value('currency')==='CNY'?'selected':''}>CNY</option><option ${value('currency')==='EUR'?'selected':''}>EUR</option></select></div>
+    <div class="field"><label>低余额提醒阈值</label><input name="threshold" type="number" step="0.01" value="${value('threshold',5)}" min="0" /></div>
+    <div id="custom-fields" class="field full"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><label>接口配置</label><button type="button" class="btn light" id="reset-interface">恢复默认接口</button></div><span class="help" id="interface-status" aria-live="polite"></span>
+      <div class="form-grid">
+        <div class="field"><label>登录路径</label><input name="login_path" value="${value('login_path',template.login_path)}" placeholder="以 / 开头" pattern="/.*" required /></div>
+        <div class="field"><label>余额路径</label><input name="balance_path" value="${value('balance_path',template.balance_path)}" placeholder="以 / 开头" pattern="/.*" required /></div>
+        <div class="field"><label>账号字段</label><input name="identifier_key" value="${value('identifier_key',template.identifier_key)}" required /></div>
+        <div class="field"><label>Token 字段</label><input name="token_field" value="${value('token_field',template.token_field)}" required /></div>
+        <div class="field"><label>余额字段</label><input name="balance_field" value="${value('balance_field',template.balance_field)}" required /></div>
+        <div class="field"><label>余额除数</label><input name="balance_scale" type="number" step="any" value="${value('balance_scale',template.balance_scale)}" required /><span class="help">显示余额 = 接口返回值 ÷ 余额除数，必须大于 0。</span></div>
+      </div>
+    </div>
+  </div><div class="modal-actions"><button type="button" class="btn light" id="modal-cancel">取消</button><button class="btn" type="submit">${editing?'保存修改并查询':'保存并查询'}</button></div></form>`);
+  const form=$('#account-form');
+  const fields=['login_path','balance_path','identifier_key','token_field','balance_field','balance_scale'];
+  const updateStatus=()=>{
+    const base=form.elements.base_provider.value;
+    const defaults=state.platforms[base];
+    const custom=fields.some(key=>key==='balance_scale'?Number(form.elements[key].value)!==defaults[key]:form.elements[key].value.trim()!==defaults[key]);
+    form.dataset.provider=custom?'generic':base;
+    $('#interface-status').textContent=custom?`自定义兼容 · 基于 ${providerLabel(base)}`:`${providerLabel(base)} 默认接口`;
+    const scale=form.elements.balance_scale;
+    scale.setCustomValidity(Number(scale.value)>0?'':'余额除数必须大于 0');
+  };
+  const resetInterface=()=>{
+    const defaults=state.platforms[form.elements.base_provider.value];
+    fields.forEach(key=>form.elements[key].value=defaults[key]);
+    updateStatus();
+  };
+  fields.forEach(key=>form.elements[key].addEventListener('input',updateStatus));
+  $('#provider').onchange=resetInterface;
+  $('#reset-interface').onclick=resetInterface;
+  $('#modal-cancel').onclick=closeModal;
+  form.onsubmit=submitAccount;
+  updateStatus();
+}
+async function submitAccount(e){e.preventDefault();const form=e.currentTarget;const f=new FormData(form);const payload=Object.fromEntries(f.entries());payload.provider=form.dataset.provider;payload.threshold=Number(payload.threshold||0);payload.balance_scale=Number(payload.balance_scale||0);const id=form.dataset.id;const path=id?`/api/accounts/${id}`:'/api/accounts';const method=id?'PUT':'POST';try{await api(path,{method,body:JSON.stringify(payload)});closeModal();await refresh();render();toast(id?'账户已更新，正在重新查询':'账户已添加，正在后台查询');if(id){try{await checkOne(Number(id))}catch{}}}catch(err){toast(err.message)}}async function openHistory(){
+  modal(`<div class="modal-head"><div><h2>最近失败记录</h2><p>仅保留最近 20 条失败记录，点击展开完整报错。</p></div><button class="close" id="modal-close" aria-label="关闭">×</button></div><div class="history-toolbar"><span>清空仅删除失败历史，不影响账户状态</span><button class="btn danger" id="clear-history-btn" disabled>清空记录</button></div><div id="failure-history" class="failure-history" aria-busy="true"><div class="empty">正在加载失败记录…</div></div>`);
+  const content=$('#failure-history');
+  const clearButton=$('#clear-history-btn');
+  clearButton.onclick=async()=>{
+    clearButton.disabled=true;
+    clearButton.textContent='正在清空…';
+    try{
+      await api('/api/history?status=error',{method:'DELETE'});
+      if(!content.isConnected)return;
+      state.history=[];
+      content.innerHTML='<div class="empty">暂无失败记录。</div>';
+      toast('失败记录已清空');
+    }catch(err){if(content.isConnected){clearButton.disabled=false;toast(err.message)}}
+    finally{if(clearButton.isConnected)clearButton.textContent='清空记录'}
+  };
+  try{
+    const history=await api('/api/history?status=error');
+    if(!content.isConnected)return;
+    state.history=history;
+    clearButton.disabled=history.length===0;
+    content.innerHTML=history.length?history.map(h=>`<details class="failure-record"><summary><span class="failure-icon">!</span><span class="failure-info"><strong>${esc(h.name)}</strong><small>${date(h.checked_at)}</small><span class="failure-preview">${esc(h.error||'接口未提供错误详情')}</span></span><span class="failure-toggle"></span></summary><div class="failure-detail"><span>完整报错</span><pre>${esc(h.error||'接口未提供错误详情')}</pre></div></details>`).join(''):`<div class="empty">暂无失败记录。</div>`;
+  }catch(err){if(content.isConnected)content.innerHTML=`<div class="error-text">${esc(err.message)}</div>`}
+  finally{if(content.isConnected)content.setAttribute('aria-busy','false')}
+}
+function $$(s){return [...document.querySelectorAll(s)]}
+boot().catch(err=>{console.error(err);toast(err.message)});
+</script>
+</body>
+</html>
+

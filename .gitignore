@@ -1,0 +1,29 @@
+# Local environment and runtime state
+.env
+.env.*
+!.env.example
+data/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Browser and local verification artifacts
+.playwright-cli/
+output/
+
+# Build and temporary files
+*.tmp
+*.temp
+*.log
+bin/
+build/
+dist/
+coverage/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

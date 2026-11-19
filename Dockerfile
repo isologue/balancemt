@@ -1,0 +1,18 @@
+ARG GO_BUILDER=golang:1.23-alpine
+FROM ${GO_BUILDER} AS build
+WORKDIR /build
+COPY go.mod ./
+RUN go mod tidy
+COPY . .
+RUN CGO_ENABLED=0 go build -mod=mod -trimpath -ldflags="-s -w" -o /out/balancemt .
+
+FROM alpine:3.20
+RUN addgroup -S app && adduser -S -G app app
+WORKDIR /app
+COPY --from=build /out/balancemt /app/balancemt
+RUN mkdir -p /app/data && chown -R app:app /app
+USER app
+ENV ADDR=:8080 DATA_DIR=/app/data MONITOR_INTERVAL_SECONDS=10
+EXPOSE 8080
+VOLUME ["/app/data"]
+ENTRYPOINT ["/app/balancemt"]

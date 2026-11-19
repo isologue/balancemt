@@ -1,0 +1,9 @@
+.env
+.env.*
+!.env.example
+data/
+.playwright-cli/
+output/
+.git/
+*.tmp
+*.balancemt.json
